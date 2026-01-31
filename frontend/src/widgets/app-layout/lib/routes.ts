@@ -7,7 +7,7 @@ export interface BreadcrumbItem {
 
 export function getPageTitle(
   pathname: string,
-  params: Record<string, string | undefined>,
+  _params: Record<string, string | undefined>,
   state: RootState
 ): string {
   if (pathname === '/') return 'Today'
@@ -30,7 +30,7 @@ export function getPageTitle(
 
 export function getBreadcrumbs(
   pathname: string,
-  params: Record<string, string | undefined>,
+  _params: Record<string, string | undefined>,
   state: RootState
 ): BreadcrumbItem[] {
   if (pathname === '/') return []
@@ -62,7 +62,7 @@ export function getBreadcrumbs(
 
 export function getBackLink(
   pathname: string,
-  params: Record<string, string | undefined>
+  _params: Record<string, string | undefined>
 ): string | null {
   if (pathname === '/habits/create') return '/habits'
   const habitMatch = pathname.match(/^\/habits\/([^/]+)$/)
