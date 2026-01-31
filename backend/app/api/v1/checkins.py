@@ -52,6 +52,12 @@ async def create_checkin(
         }
         await db.checkins.update_one({"_id": existing["_id"]}, {"$set": update_data})
         checkin = await db.checkins.find_one({"_id": existing["_id"]})
+        old_completed = existing.get("completed", False)
+        new_completed = checkin_data.completed
+        if old_completed and not new_completed:
+            await db.habits.update_one({"_id": ObjectId(checkin_data.habit_id)}, {"$inc": {"total_completions": -1}})
+        elif not old_completed and new_completed:
+            await db.habits.update_one({"_id": ObjectId(checkin_data.habit_id)}, {"$inc": {"total_completions": 1}})
     else:
         checkin_date_dt = datetime.combine(checkin_data.date, datetime.min.time())
         checkin_dict = {
@@ -66,7 +72,9 @@ async def create_checkin(
         }
         await db.checkins.insert_one(checkin_dict)
         checkin = checkin_dict
-    
+        if checkin_data.completed:
+            await db.habits.update_one({"_id": ObjectId(checkin_data.habit_id)}, {"$inc": {"total_completions": 1}})
+
     habit_frequency = habit.get("frequency", "daily")
     if checkin_data.completed and not checkin_data.skipped:
         await update_streak(ObjectId(current_user.id), ObjectId(checkin_data.habit_id), checkin_data.date, True, habit_frequency)
@@ -199,7 +207,10 @@ async def delete_checkin(
     checkin = await db.checkins.find_one({"_id": ObjectId(checkin_id), "user_id": ObjectId(current_user.id)})
     if not checkin:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Checkin not found")
-    
+
+    if checkin.get("completed"):
+        await db.habits.update_one({"_id": checkin["habit_id"]}, {"$inc": {"total_completions": -1}})
+
     habit = await db.habits.find_one({"_id": checkin["habit_id"]})
     habit_frequency = habit.get("frequency", "daily") if habit else "daily"
     await db.checkins.delete_one({"_id": ObjectId(checkin_id)})
