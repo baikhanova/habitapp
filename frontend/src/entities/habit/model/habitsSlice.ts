@@ -47,6 +47,14 @@ export const fetchHabits = createAsyncThunk(
   }
 )
 
+export const fetchHabitById = createAsyncThunk(
+  'habits/fetchById',
+  async (id: string) => {
+    const response = await api.get(`/habits/${id}`)
+    return response.data
+  }
+)
+
 export const createHabit = createAsyncThunk('habits/create', async (habitData: Partial<Habit>) => {
   const response = await api.post('/habits/', habitData)
   return response.data
@@ -94,6 +102,23 @@ const habitsSlice = createSlice({
       .addCase(fetchHabits.rejected, (state, action) => {
         state.loading = false
         state.error = action.error.message || 'Failed to fetch habits'
+      })
+      .addCase(fetchHabitById.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(fetchHabitById.fulfilled, (state, action) => {
+        state.loading = false
+        const index = state.habits.findIndex((h) => h.id === action.payload.id)
+        if (index >= 0) {
+          state.habits[index] = action.payload
+        } else {
+          state.habits.push(action.payload)
+        }
+      })
+      .addCase(fetchHabitById.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message ?? 'Failed to fetch habit'
       })
       .addCase(createHabit.fulfilled, (state, action) => {
         state.habits.push(action.payload)

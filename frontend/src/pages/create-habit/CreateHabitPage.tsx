@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { CreateHabitForm } from '@features/create-habit/ui/CreateHabitForm'
 import { Button } from '@shared/ui/button'
-import { ArrowLeft } from 'lucide-react'
 import { useToast } from '@shared/ui/toast'
 
 export function CreateHabitPage() {
@@ -16,17 +15,6 @@ export function CreateHabitPage() {
   return (
     <div className="min-h-screen overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))]">
       <div className="p-4">
-        <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/habits')}
-            className="h-10 w-10 rounded-[10px]"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-[28px] font-bold tracking-tight">Create habit</h1>
-        </div>
         <CreateHabitForm onSuccess={handleSuccess} />
       </div>
       <div

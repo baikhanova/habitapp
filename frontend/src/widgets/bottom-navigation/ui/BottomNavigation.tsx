@@ -1,24 +1,17 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Home, List, BarChart3, Settings } from 'lucide-react'
 import { cn } from '@shared/lib/utils'
-
-const navItems = [
-  { path: '/', icon: Home, label: 'Today' },
-  { path: '/habits', icon: List, label: 'Habits' },
-  { path: '/insights', icon: BarChart3, label: 'Insights' },
-  { path: '/settings', icon: Settings, label: 'Settings' },
-]
+import { NAV_ITEMS } from '@shared/constants/nav'
 
 export function BottomNavigation() {
   const location = useLocation()
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/80 bg-background/95 backdrop-blur-xl"
+      className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-border/80 bg-background/95 backdrop-blur-xl"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="flex justify-around items-center h-14 min-h-[44px] max-w-md mx-auto">
-        {navItems.map((item) => {
+        {NAV_ITEMS.map((item) => {
           const Icon = item.icon
           const isActive = location.pathname === item.path
           return (

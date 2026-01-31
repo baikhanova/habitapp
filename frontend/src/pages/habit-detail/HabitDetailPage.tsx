@@ -1,12 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
 import { useAppSelector, useAppDispatch } from '@shared/lib/hooks'
-import { deleteHabit } from '@entities/habit/model/habitsSlice'
+import { deleteHabit, fetchHabitById } from '@entities/habit/model/habitsSlice'
 import { Button } from '@shared/ui/button'
-import { ArrowLeft, Flame, Pencil, ChevronRight } from 'lucide-react'
+import { Flame, Pencil, ChevronRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { enUS } from 'date-fns/locale'
 import { HABIT_CATEGORIES } from '@shared/constants'
-import { useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -45,9 +45,18 @@ export function HabitDetailPage() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const habits = useAppSelector((state) => state.habits.habits)
+  const loading = useAppSelector((state) => state.habits.loading)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
-
+  const fetchAttemptedRef = useRef<string | null>(null)
   const habit = habits.find((h) => h.id === id)
+
+  useEffect(() => {
+    if (!id) return
+    if (habit) return
+    if (fetchAttemptedRef.current === id) return
+    fetchAttemptedRef.current = id
+    dispatch(fetchHabitById(id))
+  }, [id, habit, dispatch])
 
   const handleDelete = async () => {
     if (!habit) return
@@ -56,43 +65,33 @@ export function HabitDetailPage() {
     navigate('/habits')
   }
 
+  if (loading && !habit) {
+    return (
+      <div className="p-4">
+        <p className="text-[15px] text-muted-foreground">Loading...</p>
+      </div>
+    )
+  }
+
+  if (!id || (fetchAttemptedRef.current === id && !habit && !loading)) {
+    return (
+      <div className="p-4">
+        <p className="text-[15px] text-muted-foreground">This habit may have been deleted.</p>
+      </div>
+    )
+  }
+
   if (!habit) {
     return (
-      <div className="min-h-screen bg-background pb-[calc(5rem+env(safe-area-inset-bottom))]">
-        <div className="p-4">
-          <div className="mb-6 flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/habits')}
-              className="h-10 w-10 rounded-[10px]"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-[28px] font-bold tracking-tight">Habit not found</h1>
-          </div>
-          <p className="text-[15px] text-muted-foreground">This habit may have been deleted.</p>
-        </div>
+      <div className="p-4">
+        <p className="text-[15px] text-muted-foreground">Loading...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background pb-[calc(3rem+env(safe-area-inset-bottom))]">
+    <div className="pb-[calc(3rem+env(safe-area-inset-bottom))]">
       <div className="p-4">
-        <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/habits')}
-            className="h-10 w-10 rounded-[10px]"
-            aria-label="Back"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-[28px] font-bold tracking-tight truncate pr-4">{habit.name}</h1>
-        </div>
-
       <main className="pt-0">
         <div
           className={cn(
