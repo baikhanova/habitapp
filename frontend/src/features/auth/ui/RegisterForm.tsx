@@ -48,7 +48,8 @@ export function RegisterForm() {
         onSubmit={handleSubmit}
         className={cn(
           'flex flex-col flex-1 min-h-0',
-          'pb-[max(env(safe-area-inset-bottom),2rem)]'
+          'pb-[max(env(safe-area-inset-bottom),2rem)] md:pb-0',
+          'max-w-full md:max-w-[360px] lg:mx-0 lg:max-w-none'
         )}
       >
         {error && (
