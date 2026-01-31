@@ -128,14 +128,14 @@ Detailed request/response examples are in `docs/api.md`.
 
 ## 6. Indexing and Optimization Strategy
 
-**Intended indexes** (documented in `docs/database.md`):
+**Compound indexes** (documented in `docs/database.md`, created at application startup in `app/core/database.py`):
 
 - `habits`: `{ "user_id": 1, "archived": 1 }` — for listing a user’s active/archived habits.
 - `checkins`: `{ "user_id": 1, "habit_id": 1, "date": 1 }` — for per-habit history and date range.
 - `checkins`: `{ "user_id": 1, "date": 1 }` — for “today” and date-range queries.
 - `streaks`: `{ "user_id": 1, "habit_id": 1 }` — for streak lookup by user and habit.
 
-Indexes can be created at application startup (e.g. in `connect_to_mongo()`) or via a migration script.
+All four indexes are created in `connect_to_mongo()` on startup (idempotent).
 
 **Query patterns that benefit:**  
 - Habits list: filter by `user_id` (+ `archived`), sort by `order`.  
