@@ -19,12 +19,13 @@ export function SettingsScreen() {
   }
 
   return (
-    <div className="min-h-full overflow-y-auto pb-[calc(9.5rem+env(safe-area-inset-bottom))]">
+    <div
+      className={cn(
+        'min-h-full overflow-y-auto',
+        'pb-[calc(9.5rem+env(safe-area-inset-bottom))] md:pb-6'
+      )}
+    >
       <div className="space-y-6">
-        <div>
-          <h1 className="text-[28px] font-bold tracking-tight">Settings</h1>
-        </div>
-
         <section className="space-y-2">
           <h2 className="section-header">Appearance</h2>
           <div className="list-group">
@@ -55,11 +56,23 @@ export function SettingsScreen() {
               </div>
             )}
           </div>
+          <div className="hidden md:block pt-2">
+            <Button
+              variant="destructive"
+              onClick={handleLogout}
+              className="w-full h-12 text-[17px] font-semibold rounded-[10px]"
+            >
+              <LogOut className="w-5 h-5 mr-2" />
+              Sign out
+            </Button>
+          </div>
         </section>
       </div>
 
       <div
-        className="fixed left-0 right-0 z-40 border-t border-border/80 bg-background/95 backdrop-blur-xl px-4 pt-3"
+        className={cn(
+          'fixed left-0 right-0 z-40 border-t border-border/80 bg-background/95 backdrop-blur-xl px-4 pt-3 md:hidden'
+        )}
         style={{
           bottom: 'calc(4.5rem + env(safe-area-inset-bottom))',
           paddingBottom: 'env(safe-area-inset-bottom)',
@@ -68,7 +81,7 @@ export function SettingsScreen() {
         <Button
           variant="destructive"
           onClick={handleLogout}
-          className={cn('w-full h-12 text-[17px] font-semibold rounded-[10px]')}
+          className="w-full h-12 text-[17px] font-semibold rounded-[10px]"
         >
           <LogOut className="w-5 h-5 mr-2" />
           Sign out

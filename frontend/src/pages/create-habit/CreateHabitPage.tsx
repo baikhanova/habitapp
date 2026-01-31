@@ -13,12 +13,22 @@ export function CreateHabitPage() {
   }
 
   return (
-    <div className="min-h-screen overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))]">
+    <div className="min-h-screen overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-6">
       <div className="p-4">
         <CreateHabitForm onSuccess={handleSuccess} />
+        <div className="hidden md:block pt-4">
+          <Button
+            type="submit"
+            form="create-habit-form"
+            size="lg"
+            className="w-full font-semibold rounded-[10px]"
+          >
+            Create habit
+          </Button>
+        </div>
       </div>
       <div
-        className="fixed bottom-0 left-0 right-0 z-40 border-t border-border/80 bg-background/95 backdrop-blur-xl"
+        className="fixed bottom-0 left-0 right-0 z-40 md:hidden border-t border-border/80 bg-background/95 backdrop-blur-xl"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         <div className="p-4 pt-3">
