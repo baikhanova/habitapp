@@ -14,6 +14,10 @@ async def connect_to_mongo():
         connect_kwargs["tlsCAFile"] = certifi.where()
     client = AsyncIOMotorClient(settings.MONGODB_URL, **connect_kwargs)
     database = client.get_database("habittracker")
+    await database.habits.create_index([("user_id", 1), ("archived", 1)])
+    await database.checkins.create_index([("user_id", 1), ("habit_id", 1), ("date", 1)])
+    await database.checkins.create_index([("user_id", 1), ("date", 1)])
+    await database.streaks.create_index([("user_id", 1), ("habit_id", 1)])
 
 
 async def close_mongo_connection():

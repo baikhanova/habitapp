@@ -93,26 +93,48 @@ async def get_heatmap(
     start_date = end_date - timedelta(days=days)
     start_datetime = datetime.combine(start_date, datetime.min.time())
     end_datetime = datetime.combine(end_date, datetime.max.time())
-    
-    checkins = await db.checkins.find({
-        "user_id": ObjectId(current_user.id),
-        "date": {"$gte": start_datetime, "$lte": end_datetime},
-        "completed": True,
-    }).to_list(length=10000)
-    
+    pipeline = [
+        {"$match": {"user_id": ObjectId(current_user.id), "date": {"$gte": start_datetime, "$lte": end_datetime}, "completed": True}},
+        {"$group": {"_id": {"$dateToString": {"format": "%Y-%m-%d", "date": "$date"}}, "count": {"$sum": 1}}},
+        {"$project": {"date": "$_id", "count": 1, "_id": 0}},
+    ]
+    cursor = db.checkins.aggregate(pipeline)
     heatmap_data = {}
-    for checkin in checkins:
-        d = _to_date(checkin["date"])
-        date_str = d.strftime("%Y-%m-%d")
-        if date_str not in heatmap_data:
-            heatmap_data[date_str] = 0
-        heatmap_data[date_str] += 1
-    
+    async for doc in cursor:
+        heatmap_data[doc["date"]] = doc["count"]
     return {
         "start_date": str(start_date),
         "end_date": str(end_date),
         "data": heatmap_data,
     }
+
+
+@router.get("/completion-by-habit")
+async def get_completion_by_habit(
+    current_user: User = Depends(get_current_user),
+    days: int = 30,
+):
+    db = get_database()
+    end_date = date.today()
+    start_date = end_date - timedelta(days=days)
+    start_datetime = datetime.combine(start_date, datetime.min.time())
+    end_datetime = datetime.combine(end_date, datetime.max.time())
+    pipeline = [
+        {"$match": {"user_id": ObjectId(current_user.id), "date": {"$gte": start_datetime, "$lte": end_datetime}, "completed": True}},
+        {"$group": {"_id": "$habit_id", "completed_count": {"$sum": 1}}},
+        {"$lookup": {"from": "habits", "localField": "_id", "foreignField": "_id", "as": "habit"}},
+        {"$unwind": {"path": "$habit", "preserveNullAndEmptyArrays": True}},
+        {"$project": {"habit_id": {"$toString": "$_id"}, "habit_name": "$habit.name", "completed_count": 1, "_id": 0}},
+    ]
+    cursor = db.checkins.aggregate(pipeline)
+    result = []
+    async for doc in cursor:
+        result.append({
+            "habit_id": doc.get("habit_id", ""),
+            "habit_name": doc.get("habit_name") or "",
+            "completed_count": doc["completed_count"],
+        })
+    return {"start_date": str(start_date), "end_date": str(end_date), "habits": result}
 
 
 @router.get("/insights")
