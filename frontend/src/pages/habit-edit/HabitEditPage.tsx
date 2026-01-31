@@ -1,10 +1,9 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAppSelector, useAppDispatch } from '@shared/lib/hooks'
-import { updateHabit, fetchHabits, type Habit } from '@entities/habit/model/habitsSlice'
+import { updateHabit, fetchHabits, fetchHabitById, type Habit } from '@entities/habit/model/habitsSlice'
 import { Button } from '@shared/ui/button'
 import { Input } from '@shared/ui/input'
-import { ArrowLeft } from 'lucide-react'
 import { HABIT_CATEGORIES, HABIT_COLORS } from '@shared/constants'
 import { useToast } from '@shared/ui/toast'
 import { cn } from '@shared/lib/utils'
@@ -79,7 +78,17 @@ export function HabitEditPage() {
   const dispatch = useAppDispatch()
   const { toast } = useToast()
   const habits = useAppSelector((state) => state.habits.habits)
+  const loading = useAppSelector((state) => state.habits.loading)
   const habit = habits.find((h) => h.id === id)
+  const fetchAttemptedRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (!id) return
+    if (habit) return
+    if (fetchAttemptedRef.current === id) return
+    fetchAttemptedRef.current = id
+    dispatch(fetchHabitById(id))
+  }, [id, habit, dispatch])
 
   const todayStr = new Date().toISOString().slice(0, 10)
 
@@ -163,33 +172,33 @@ export function HabitEditPage() {
     }
   }
 
-  if (!habit) {
+  if (loading && !habit) {
     return (
       <div className="p-4">
-        <Button variant="ghost" onClick={() => navigate('/habits')} className="mb-4 rounded-[10px]">
-          <ArrowLeft className="h-5 w-5 mr-2" />
-          Back
-        </Button>
+        <p className="text-muted-foreground text-[15px]">Loading...</p>
+      </div>
+    )
+  }
+
+  if (!id || (fetchAttemptedRef.current === id && !habit && !loading)) {
+    return (
+      <div className="p-4">
         <p className="text-muted-foreground text-[15px]">Habit not found.</p>
       </div>
     )
   }
 
-  return (
-    <div className="min-h-screen pb-[calc(5rem+env(safe-area-inset-bottom))]">
+  if (!habit) {
+    return (
       <div className="p-4">
-        <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate(`/habits/${id}`)}
-            className="h-10 w-10 rounded-[10px] shrink-0"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-[28px] font-bold tracking-tight">Edit habit</h1>
-        </div>
+        <p className="text-muted-foreground text-[15px]">Loading...</p>
+      </div>
+    )
+  }
 
+  return (
+    <div className="pb-[calc(5rem+env(safe-area-inset-bottom))]">
+      <div className="p-4">
         <form id="edit-habit-form" onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="edit-name" className="text-[15px] font-medium">
