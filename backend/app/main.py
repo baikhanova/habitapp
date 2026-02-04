@@ -51,7 +51,7 @@ async def shutdown_event():
 async def root():
     if frontend_dist.exists():
         return FileResponse(str(frontend_dist / "index.html"))
-    return {"message": "Habitify Clone API"}
+    return {"message": "Habitify API"}
 
 
 if frontend_dist.exists():

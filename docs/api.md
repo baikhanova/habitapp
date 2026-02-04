@@ -63,7 +63,7 @@ Check-in update is done via POST `/checkins/` (upsert by user+habit+date).
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/` | Root: SPA index or `{"message": "Habitify Clone API"}`. |
+| GET | `/` | Root: SPA index or `{"message": "Habitify API"}`. |
 | GET | `/{path}` | SPA fallback (serve frontend). |
 
 ---

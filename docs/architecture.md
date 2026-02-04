@@ -1,4 +1,4 @@
-# Архитектура Habitify Clone
+# Архитектура Habitify
 
 ## Обзор
 
